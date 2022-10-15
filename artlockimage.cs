@@ -160,7 +160,7 @@ namespace ArtLockImage {
         }
 
        static async Task<int> MainAsync(string[] args) {
-            if (args.Length==1 && File.Exists(args[1])) {
+            if (args.Length>1 && File.Exists(args[1])) {
                 await SetLockImage(args[1]);
                 return 0;
             }
@@ -187,22 +187,66 @@ namespace ArtLockImage {
                 string tit = vals.ElementAtOrDefault(1) ?? string.Empty;
                 string aut = vals.ElementAtOrDefault(2) ?? string.Empty;
                 await Download(vals[0], "image.jpg");
-                Transform("image.jpg", "output.jpg", aut+" "+tit, args);
+                Transform("image.jpg", "output.jpg", aut+" - "+tit, args);
                 await SetLockImage("output.jpg");
             }
             return 0;
         }
 
+        static void CreateTask() {
+            var xml = @"
+<?xml version='1.0' encoding='UTF-16'?>
+<Task version='1.4' xmlns='http://schemas.microsoft.com/windows/2004/02/mit/task'>
+  <Triggers>
+    <SessionStateChangeTrigger>
+      <StateChange>SessionLock</StateChange>
+    </SessionStateChangeTrigger>
+    <BootTrigger />
+  </Triggers>
+  <Actions Context='Author'>
+    <Exec>
+      <Command>C:\projects\c#\artlockimage\out\artlockimage.exe</Command>
+      <WorkingDirectory>C:\projects\c#\artlockimage\out</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>                
+            ";
+            File.WriteAllTextAsync("artlockimagetask.xml", xml.Trim());
+            System.Diagnostics.Process.Start("schtasks","/create /tn ArtLockImage /xml artlockimagetask.xml /f");
+        }
+
+        // returns true if param was provided, sets arg to next argument
+        static bool GetParam(string param, out string arg) {
+            arg = "";
+            var args = Environment.GetCommandLineArgs();
+            for (int i=1; i<args.Length; i++) {
+                if (args[i].ToLower()==param.ToLower()) {
+                    if (i+1<args.Length) arg = args[i+1];
+                    return true;
+                }
+            }
+            return false;
+        }
+        static bool GetParam(string param) { string o; return GetParam(param, out o); }
+
         static int Main(string[] args) {
-            if (args.Length >= 2 && (args[1] == "-h" || args[1] == "/?" || args[1] == "--help")) {
-                Console.WriteLine("artlockimage changes logon screen background to either image provided in command line argument");
-                Console.WriteLine("or by reading downloading random image from links provided in urls file.");
+            if (GetParam("-h")||GetParam("/?")||GetParam("--help")) {
+                Console.WriteLine("ArtLockImage changes logon screen background to random image from links provided in urls file.");
                 Console.WriteLine("The format for each line is: link;author;title");
-                Console.WriteLine("If no urls file is avaiable ~1000 image links are downloaded from most-famous-paintings.com website");
+                Console.WriteLine("If no urls file is avaiable ~1000 image links are downloaded from most-famous-paintings.com website.");
                 Console.WriteLine("");
-                Console.WriteLine("syntax: lockimage [imagefile] [--help]");
+                Console.WriteLine("syntax: lockimage [imagefile|options]");
                 Console.WriteLine("");
-                Console.WriteLine("this comes with MIT license from rostok - https://github.com/rostok/");
+                Console.WriteLine("options:");
+                Console.WriteLine("        imagefile  sets lock screen image without any transformation");
+                Console.WriteLine("        -ct        creates 'ArtLockImage' scheduled windows task triggerred logoff");
+                Console.WriteLine("        -h         shows this help");
+                Console.WriteLine("");
+                Console.WriteLine("All this comes with MIT license from rostok - https://github.com/rostok/");
+                return 0;
+            }
+            if (GetParam("-ct")) {
+                CreateTask();
                 return 0;
             }
             MainAsync(args).Wait();
