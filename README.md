@@ -14,6 +14,7 @@ syntax & options:
 
     imagefile  sets lock screen image without any transformation
     -ct        creates 'ArtLockImage' scheduled windows task triggerred logoff
+    -t         use temporary path for image storage");
     -h         shows this help
 
 # Installation
@@ -24,6 +25,8 @@ Place artlockimage.exe somewhere safe and run
 This should create task. To remove the task run
 
     schtasks /delete /tn ArtLockImage /f
+
+The folder should be writable. In case it is not you can run `artlockimage -ct -t` and temprorary folder will be used for all images.
 
 Note that Windows come with some weird logon screen options. 
 

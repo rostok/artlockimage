@@ -186,14 +186,19 @@ namespace ArtLockImage {
                 if(vals.Length<1) Exit("bad line in urls file:"+vals);
                 string tit = vals.ElementAtOrDefault(1) ?? string.Empty;
                 string aut = vals.ElementAtOrDefault(2) ?? string.Empty;
-                await Download(vals[0], "image.jpg");
-                Transform("image.jpg", "output.jpg", aut+" - "+tit, args);
-                await SetLockImage("output.jpg");
+                string temppath = "";
+                if (GetParam("-t")) temppath = Path.GetTempPath();
+                await Download(vals[0], temppath+"image.jpg");
+                Transform(temppath+"image.jpg", temppath+"output.jpg", aut+" - "+tit, args);
+                await SetLockImage(temppath+"output.jpg");
             }
             return 0;
         }
 
         static void CreateTask() {
+            var process = Process.GetCurrentProcess(); // Or whatever method you are using
+            string fullPath = process.MainModule.FileName;
+
             var xml = @"
 <?xml version='1.0' encoding='UTF-16'?>
 <Task version='1.4' xmlns='http://schemas.microsoft.com/windows/2004/02/mit/task'>
@@ -205,8 +210,9 @@ namespace ArtLockImage {
   </Triggers>
   <Actions Context='Author'>
     <Exec>
-      <Command>C:\projects\c#\artlockimage\out\artlockimage.exe</Command>
-      <WorkingDirectory>C:\projects\c#\artlockimage\out</WorkingDirectory>
+      <Command>"+process.MainModule.FileName+@"</Command>
+      <Arguments>"+(GetParam("-t")?"-t":"")+@"</Arguments>
+      <WorkingDirectory>"+Path.GetDirectoryName(process.MainModule.FileName)+@"</WorkingDirectory>
     </Exec>
   </Actions>
 </Task>                
@@ -240,6 +246,7 @@ namespace ArtLockImage {
                 Console.WriteLine("options:");
                 Console.WriteLine("        imagefile  sets lock screen image without any transformation");
                 Console.WriteLine("        -ct        creates 'ArtLockImage' scheduled windows task triggerred logoff");
+                Console.WriteLine("        -t         use temporary path for image storage");
                 Console.WriteLine("        -h         shows this help");
                 Console.WriteLine("");
                 Console.WriteLine("All this comes with MIT license from rostok - https://github.com/rostok/");
