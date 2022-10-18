@@ -1,7 +1,7 @@
 @echo off
 ::rm -rf bin
 ::rm -rf out
-dotnet build 
+dotnet build
 ::dotnet build --configuration Release
 if not %errorlevel% equ 0 goto error
 echo ------------------------------------------

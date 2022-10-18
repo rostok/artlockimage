@@ -19,14 +19,15 @@ using Windows.System.UserProfile;
 using System.Linq;
 using System.Windows;
 
-// [assembly : AssemblyTitle("artlockimage")]
-// [assembly : AssemblyConfiguration("")]
-// [assembly : AssemblyCompany("rostok - https://github.com/rostok/")]
-// [assembly : AssemblyCopyright("Copyright © 2022")]
-// [assembly : AssemblyTrademark("")]
-// [assembly : AssemblyCulture("")]
-// [assembly : AssemblyVersion("1.0.0.0")]
-// [assembly : AssemblyFileVersion("1.0.0.0")]
+[assembly : AssemblyProduct("ArtLockImage")]
+[assembly : AssemblyTitle("artlockimage")]
+[assembly : AssemblyConfiguration("")]
+[assembly : AssemblyCompany("rostok - https://github.com/rostok/")]
+[assembly : AssemblyTrademark("rostok")]
+[assembly : AssemblyCulture("")]
+[assembly : AssemblyVersion("1.0.1.0")]
+[assembly : AssemblyFileVersion("1.0.1.0")]
+[assembly : System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage {
     internal static class Program2 {
