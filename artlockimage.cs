@@ -25,20 +25,48 @@ using System.Windows;
 [assembly : AssemblyCompany("rostok - https://github.com/rostok/")]
 [assembly : AssemblyTrademark("rostok")]
 [assembly : AssemblyCulture("")]
-[assembly : AssemblyVersion("1.0.1.0")]
-[assembly : AssemblyFileVersion("1.0.1.0")]
+[assembly : AssemblyVersion("1.0.3.0")]
+[assembly : AssemblyFileVersion("1.0.3.0")]
 [assembly : System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage {
     internal static class Program2 {
         static void Exit(string msg) {
-			Console.WriteLine("FATAL ERROR! "+msg);
+            Console.WriteLine("FATAL ERROR! "+msg);
             System.Environment.Exit(1);
         }
 
         [DllImport("User32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern int GetSystemMetrics(int nIndex);
     
+        /// trims start
+        public static string TrimStart(string source, params string[] str)
+        {
+            for (int i=0; i<str.Length; i++) {
+                if (source.StartsWith(str[i],System.StringComparison.Ordinal)) { source = source.Substring(str[i].Length); break; }
+            };
+            return source;
+        }
+
+        /// trims end
+        public static string TrimEnd(string source, params string[] str)
+        {
+            for (int i=0; i<str.Length; i++) {
+                if (source.EndsWith(str[i],System.StringComparison.Ordinal)) { source = source.Substring(0,source.Length - str[i].Length); break; }
+            };
+            return source;
+        }
+
+        /// trims end
+        public static string TrimBoth(string source, params string[] str)
+        {
+            for (int i=0; i<str.Length; i++) {
+                source = TrimStart(source, str[i]);
+                source = TrimEnd(source, str[i]);
+            }
+            return source;
+        }
+
         static async Task<string> Download(string url, string filename="") {
             try {
                 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12; 
@@ -53,10 +81,10 @@ namespace ArtLockImage {
                     File.WriteAllBytes(filename, fileBytes);
                     return "";
                 }
-			} catch (Exception e) {
-			    Console.WriteLine("connection failed for "+url);//\nException:"+e);
-			}
-			return "";
+            } catch (Exception e) {
+                Console.WriteLine("connection failed for "+url);//\nException:"+e);
+            }
+            return "";
         }
 
         static async Task<string> GetSingleImage(string url, List<string> urls, int total) 
@@ -178,7 +206,7 @@ namespace ArtLockImage {
                 await Task.WhenAll(tasks.ToArray());
                 // urls.ForEach(u=>{Console.WriteLine(u)});
                 File.AppendAllLines("urls",urls);
- 			}
+            }
             if (File.Exists("urls")) {
                 var lines = File.ReadAllText("urls").Trim().Split('\n');
                 var line = lines[(new Random()).Next(lines.Length)];
@@ -189,8 +217,9 @@ namespace ArtLockImage {
                 string aut = vals.ElementAtOrDefault(2) ?? string.Empty;
                 string temppath = "";
                 if (GetParam("-t")) temppath = Path.GetTempPath();
+                File.Delete(temppath+"image.jpg");
                 await Download(vals[0], temppath+"image.jpg");
-                Transform(temppath+"image.jpg", temppath+"output.jpg", aut+" - "+tit, args);
+                Transform(temppath+"image.jpg", temppath+"output.jpg", TrimBoth(aut+" - "+tit," - "), args);
                 await SetLockImage(temppath+"output.jpg");
             }
             return 0;

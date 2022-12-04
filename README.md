@@ -19,7 +19,7 @@ Syntax & options:
     -h         shows this help
 
 # Installation
-Place artlockimage.exe somewhere safe and run 
+Place `artlockimage.exe` somewhere safe and run 
     
     artlockimage -ct
 
@@ -54,7 +54,7 @@ However if you want a clean single exe run also:
     dotnet publish --output "out" --runtime win-x64 --configuration Release -p:PublishTrimmed=true -p:PublishSingleFile=true --self-contained 
     del out\*.pdb
 
-Now you have artlockimage.exe in out folder. Move urls file there or it will be downladed automatically.
+Now you have `artlockimage.exe` in `out` folder. Move urls file there or it will be downladed automatically.
 
 # License
 MIT
