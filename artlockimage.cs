@@ -25,8 +25,8 @@ using System.Windows;
 [assembly : AssemblyCompany("rostok - https://github.com/rostok/")]
 [assembly : AssemblyTrademark("rostok")]
 [assembly : AssemblyCulture("")]
-[assembly : AssemblyVersion("1.0.3.0")]
-[assembly : AssemblyFileVersion("1.0.3.0")]
+[assembly : AssemblyVersion("1.0.4.0")]
+[assembly : AssemblyFileVersion("1.0.4.0")]
 [assembly : System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage {
@@ -267,7 +267,7 @@ namespace ArtLockImage {
 
         static int Main(string[] args) {
             if (GetParam("-h")||GetParam("/?")||GetParam("--help")) {
-                Console.WriteLine("ArtLockImage changes logon screen background to random image from links provided in urls file.");
+                Console.WriteLine("ArtLockImage (v"+Assembly.GetExecutingAssembly().GetName().Version+") changes logon screen background to random image from links provided in urls file.");
                 Console.WriteLine("The format for each line is: link;author;title");
                 Console.WriteLine("If no urls file is avaiable ~1000 image links are downloaded from most-famous-paintings.com website.");
                 Console.WriteLine("");
