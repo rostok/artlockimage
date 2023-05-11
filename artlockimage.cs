@@ -25,20 +25,45 @@ using System.Windows;
 [assembly : AssemblyCompany("rostok - https://github.com/rostok/")]
 [assembly : AssemblyTrademark("rostok")]
 [assembly : AssemblyCulture("")]
-[assembly : AssemblyVersion("1.0.4.0")]
-[assembly : AssemblyFileVersion("1.0.4.0")]
+[assembly : AssemblyVersion("1.0.5.0")]
+[assembly : AssemblyFileVersion("1.0.5.0")]
 [assembly : System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage {
-    internal static class Program2 {
+    internal static class Program {
+        public static string logFile = "";
+        public static bool showConsole = true;
+
         static void Exit(string msg) {
-            Console.WriteLine("FATAL ERROR! "+msg);
+            WriteLine("FATAL ERROR! "+msg);
             System.Environment.Exit(1);
         }
 
-        [DllImport("User32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
+        [DllImport( "kernel32.dll", SetLastError = true )]
+        static extern bool AllocConsole();
+
+        [DllImport( "kernel32.dll", SetLastError = true )]
+        static extern bool AttachConsole( int dwProcessId );
+
+        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern int GetSystemMetrics(int nIndex);
     
+
+        public static void WriteLine(string s)
+        {
+            if (GetParam("-q")) showConsole = false;
+            if (showConsole) {
+                if (!AttachConsole(-1)) AllocConsole();
+                Console.WriteLine(s);
+            } else {
+                if (logFile=="") {
+                    logFile = GetParam("-t") ? Path.GetTempPath() : "" + "artlockimage.log";
+                    File.Delete(logFile);
+                }
+                File.AppendAllText(logFile,s+"\n");
+            }
+        }
+
         /// trims start
         public static string TrimStart(string source, params string[] str)
         {
@@ -82,7 +107,7 @@ namespace ArtLockImage {
                     return "";
                 }
             } catch (Exception e) {
-                Console.WriteLine("connection failed for "+url);//\nException:"+e);
+                WriteLine("connection failed for "+url);//\nException:"+e);
             }
             return "";
         }
@@ -194,7 +219,7 @@ namespace ArtLockImage {
                 return 0;
             }
             if (!File.Exists("urls")) {
-                Console.WriteLine("no urls file, downloading");
+                WriteLine("no urls file, downloading");
                 string body = await Download("https://en.most-famous-paintings.com/MostFamousPaintings.nsf/ListOfTop1000MostPopularPainting?OpenForm");
                 if(body=="") Exit("body is empty");
                 
@@ -202,15 +227,15 @@ namespace ArtLockImage {
                 var urls = new List<string>();
                 var tasks = new List<Task>();
                 for (int i=0; i<matches.Count; i++) tasks.Add( GetSingleImage("https://en.most-famous-paintings.com/MostFamousPaintings.nsf/"+matches[i].ToString(), urls, matches.Count) );
-                // Console.WriteLine(tasks.Count);
+                // WriteLine(tasks.Count);
                 await Task.WhenAll(tasks.ToArray());
-                // urls.ForEach(u=>{Console.WriteLine(u)});
+                // urls.ForEach(u=>{WriteLine(u)});
                 File.AppendAllLines("urls",urls);
             }
             if (File.Exists("urls")) {
                 var lines = File.ReadAllText("urls").Trim().Split('\n');
                 var line = lines[(new Random()).Next(lines.Length)];
-                Console.WriteLine(line);
+                WriteLine(line);
                 var vals = line.Split(';');
                 if(vals.Length<1) Exit("bad line in urls file:"+vals);
                 string tit = vals.ElementAtOrDefault(1) ?? string.Empty;
@@ -241,7 +266,7 @@ namespace ArtLockImage {
   <Actions Context='Author'>
     <Exec>
       <Command>"+process.MainModule.FileName+@"</Command>
-      <Arguments>"+(GetParam("-t")?"-t":"")+@"</Arguments>
+      <Arguments>"+(GetParam("-t")?"-t":" ")+(GetParam("-q")?"-q":" ")+@"</Arguments>
       <WorkingDirectory>"+Path.GetDirectoryName(process.MainModule.FileName)+@"</WorkingDirectory>
     </Exec>
   </Actions>
@@ -267,23 +292,29 @@ namespace ArtLockImage {
 
         static int Main(string[] args) {
             if (GetParam("-h")||GetParam("/?")||GetParam("--help")) {
-                Console.WriteLine("ArtLockImage (v"+Assembly.GetExecutingAssembly().GetName().Version+") changes logon screen background to random image from links provided in urls file.");
-                Console.WriteLine("The format for each line is: link;author;title");
-                Console.WriteLine("If no urls file is avaiable ~1000 image links are downloaded from most-famous-paintings.com website.");
-                Console.WriteLine("");
-                Console.WriteLine("syntax: lockimage [imagefile|options]");
-                Console.WriteLine("");
-                Console.WriteLine("options:");
-                Console.WriteLine("        imagefile  sets lock screen image without any transformation");
-                Console.WriteLine("        -ct        creates 'ArtLockImage' scheduled windows task triggerred logoff");
-                Console.WriteLine("        -t         use temporary path for image storage");
-                Console.WriteLine("        -h         shows this help");
-                Console.WriteLine("");
-                Console.WriteLine("All this comes with MIT license from rostok - https://github.com/rostok/");
+                WriteLine("ArtLockImage (v"+Assembly.GetExecutingAssembly().GetName().Version+") changes logon screen background to random image from links provided in urls file.");
+                WriteLine("The format for each line is: link;author;title");
+                WriteLine("If no urls file is avaiable ~1000 image links are downloaded from most-famous-paintings.com website.");
+                WriteLine("");
+                WriteLine("syntax: lockimage [imagefile|options]");
+                WriteLine("");
+                WriteLine("options:");
+                WriteLine("        imagefile  sets lock screen image without any transformation");
+                WriteLine("        -ct        creates 'ArtLockImage' scheduled Windows task triggerred logoff along with -t -q options");
+                WriteLine("        -dt        deletes 'ArtLockImage' scheduled task");
+                WriteLine("        -t         use temporary path for image storage");
+                WriteLine("        -h         shows this help");
+                WriteLine("        -q         quiet, log output to artlockimage.log");
+                WriteLine("");
+                WriteLine("All this comes with MIT license from rostok - https://github.com/rostok/");
                 return 0;
             }
             if (GetParam("-ct")) {
                 CreateTask();
+                return 0;
+            }
+            if (GetParam("-dt")) {
+                System.Diagnostics.Process.Start("schtasks","/delete /tn ArtLockImage /f");
                 return 0;
             }
             MainAsync(args).Wait();
