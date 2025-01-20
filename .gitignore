@@ -1,0 +1,16 @@
+.vscode/*
+.gitignore 
+*.jpg
+*.exe
+bkp/*
+out/*
+obj/*
+bin/*
+php/*
+node/*
+wiki/*
+trash/*
+.tmp.driveupload/*
+!/*
+image.jpg
+output.jpg
