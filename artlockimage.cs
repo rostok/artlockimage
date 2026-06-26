@@ -27,8 +27,8 @@ using System.ComponentModel.DataAnnotations;
 [assembly: AssemblyCompany("rostok - https://github.com/rostok/")]
 [assembly: AssemblyTrademark("rostok")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.6.0")]
-[assembly: AssemblyFileVersion("1.0.6")]
+[assembly: AssemblyVersion("1.0.7.0")]
+[assembly: AssemblyFileVersion("1.0.7")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage
@@ -301,7 +301,10 @@ namespace ArtLockImage
             }
             if (File.Exists("urls"))
             {
-                var lines = File.ReadAllText("urls").Trim().Split('\n');
+                var lines = File.ReadAllText("urls").Trim().Split('\n')
+                    .Select(line => line.Trim())
+                    .Where(line => line.Length > 0 && !line.StartsWith("#"))
+                    .ToArray();
                 var patterns = args.Where(arg => !arg.StartsWith("-")).Select(p=>p.ToLower()).ToArray();
                 lines = lines.Where(line => patterns.All(pattern => line.ToLower().Contains(pattern))).ToArray();
 

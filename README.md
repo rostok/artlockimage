@@ -4,6 +4,7 @@ Sets Windows 10 lock screen background to random art or your chosen image.
 # Usage
 ArtLockImage changes logon screen background to either image which filename is passed as argument or by reading and downloading a random image from links provided in urls file.
 The urls is a simple text file where each line is just: `link;author;title`, author/title fields are optional.
+Lines starting with `#` are treated as comments and ignored, as are empty lines.
 If no urls file is avaiable ~1000 image links are downloaded from most-famous-paintings.com website.
 The image is downloaded to `image.jpg` file and transformed to `output.jpg`. The transformation assumes some scaling and putting the content close to the right edge. If provided author and title are placed on top.
 
