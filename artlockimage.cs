@@ -27,8 +27,8 @@ using System.ComponentModel.DataAnnotations;
 [assembly: AssemblyCompany("rostok - https://github.com/rostok/")]
 [assembly: AssemblyTrademark("rostok")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.7.0")]
-[assembly: AssemblyFileVersion("1.0.7")]
+[assembly: AssemblyVersion("1.0.8.0")]
+[assembly: AssemblyFileVersion("1.0.8")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage
@@ -126,6 +126,9 @@ namespace ArtLockImage
                 var clientHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
                 var client = new HttpClient(clientHandler);
                 clientHandler.UseProxy = false;
+
+                client.DefaultRequestHeaders.UserAgent.ParseAdd($"ArtLockImage/{Assembly.GetExecutingAssembly().GetName().Version} (https://github.com/rostok/artlockimage)");
+
                 if (filename == "")
                 {
                     var s = await client.GetStreamAsync(url);
