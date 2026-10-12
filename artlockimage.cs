@@ -27,8 +27,8 @@ using System.ComponentModel.DataAnnotations;
 [assembly: AssemblyCompany("rostok - https://github.com/rostok/")]
 [assembly: AssemblyTrademark("rostok")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.8.0")]
-[assembly: AssemblyFileVersion("1.0.8")]
+[assembly: AssemblyVersion("1.0.9.0")]
+[assembly: AssemblyFileVersion("1.0.9")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
 
 namespace ArtLockImage
@@ -71,10 +71,10 @@ namespace ArtLockImage
             {
                 if (logFile == "")
                 {
-                    logFile = GetParam("-t") ? Path.GetTempPath() : "" + "artlockimage.log";
-                    File.Delete(logFile);
+                    logFile = (GetParam("-t") ? Path.GetTempPath() : "") + "artlockimage.log";
+                    try { File.Delete(logFile); } catch { }
                 }
-                File.AppendAllText(logFile, s + "\\n");
+                try { File.AppendAllText(logFile, s + Environment.NewLine); } catch { }
             }
         }
 

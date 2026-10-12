@@ -14,3 +14,7 @@ trash/*
 !/*
 image.jpg
 output.jpg
+wikimedia-search/*
+scrapper-2026/*
+scrapper-2026-tampermonkey/*
+urls-sources/*
